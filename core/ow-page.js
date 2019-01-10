@@ -9,12 +9,10 @@ const _Page = Page;
  */
 Page = function(pageConf) {
   const app = getApp();
-
   pageConf.mixins = (config.mixins || []).concat(pageConf.mixins || []);
 
   StoreCore.mixinsPageStore(pageConf);
   pageMixins(pageConf);
 
-  console.log(pageConf);
   _Page(pageConf);
 };
