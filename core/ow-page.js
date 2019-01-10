@@ -15,6 +15,5 @@ Page = function(pageConf) {
   StoreCore.mixinsPageStore(pageConf);
   pageMixins(pageConf);
 
-  console.log(pageConf);
   _Page(pageConf);
 };
