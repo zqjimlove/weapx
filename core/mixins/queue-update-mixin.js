@@ -16,6 +16,8 @@ class QueueUpdate {
     this._pendingDataCallBack = [];
     this._readyRender = false;
     this._dataHasChange = false;
+
+    this._doUpdatePromise = Promise.resolve();
     this.init();
   }
   init() {
@@ -41,22 +43,29 @@ class QueueUpdate {
     this.ctx.setState = this.updateDate.bind(this);
   }
   updateDate(data, callback) {
-    if (!data) return;
-    this._pendingData.push(data);
-    if (callback) {
-      this._pendingDataCallBack.push(callback);
-    }
+    this._doUpdatePromise.then(() => {
+      if (!data) return;
+      this._pendingData.push(data);
+      if (callback) {
+        this._pendingDataCallBack.push(callback);
+      }
 
-    if (!this._readyRender) return;
+      if (!this._readyRender) return;
 
-    if (this._updateTickId) {
-      nextTick.clearTick(this._updateTickId);
-    }
+      if (this._updateTickId) {
+        nextTick.clearTick(this._updateTickId);
+      }
 
-    this._updateTickId = nextTick(this.doUpdate.bind(this));
+      this._updateTickId = nextTick(this.doUpdate.bind(this));
+    });
   }
   doUpdate() {
     if (!this._pendingData.length) return;
+    let doUpdateResolve, doUpdateReject;
+    this._doUpdatePromise = new Promise((resolve, reject) => {
+      doUpdateResolve = resolve;
+      doUpdateReject = reject;
+    });
     const { ctx } = this;
     const updateDataObj = {};
     const queueData = this._pendingData.concat();
@@ -71,35 +80,47 @@ class QueueUpdate {
     this._dataHasChange = false;
     if (!hasChange) {
       // 数据未改变，则清空队列并不做任何处理。
+      this._applyDataCallBackQueue(queueCallBacks);
       this._clearDataQueue();
+      doUpdateResolve();
       return;
     }
 
-    if (this.shouldPageUpdate(nextData) === false) return;
+    if (this.shouldPageUpdate(nextData) === false) {
+      Object.assign(ctx.data, nextData);
+      this._applyDataCallBackQueue(queueCallBacks);
+      this._clearDataCallBackQueue();
+      doUpdateResolve();
+      return;
+    }
 
     this._clearDataQueue();
     this._clearDataCallBackQueue();
 
-    const dataClone = Object.assign({}, this.data);
+    const dataClone = Object.assign({}, this.ctx.data);
 
     ctx[EVENT_BUS_KEY].trigger("onPageWillUpdate", [dataClone, nextData], ctx);
 
     this._setData(updateDataObj, () => {
-      if (queueCallBacks.length) {
-        queueCallBacks.forEach(cb => {
-          try {
-            cb();
-          } catch (e) {
-            console.error(e);
-          }
-        });
-      }
+      this._applyDataCallBackQueue(queueCallBacks);
       ctx[EVENT_BUS_KEY].trigger(
         "onPageDidUpdate",
-        [dataClone, this.data],
+        [dataClone, this.ctx.data],
         ctx
       );
+      doUpdateResolve();
     });
+  }
+  _applyDataCallBackQueue(queueCallBacks) {
+    if (queueCallBacks.length) {
+      queueCallBacks.forEach(cb => {
+        try {
+          cb();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    }
   }
   _clearDataQueue() {
     this._pendingData.length = 0;

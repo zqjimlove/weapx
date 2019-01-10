@@ -4,6 +4,8 @@ import StoreCore from "./core/store.core";
 import queueUpdateMixin from "./core/mixins/queue-update-mixin";
 import storeMapDataMixin from "./core/mixins/store-map-data-mixin";
 
+import { autorun, reaction } from "./libs/mobx";
+
 const DEFAULT_CONFIG = {
   mixins: [storeMapDataMixin, queueUpdateMixin]
 };
@@ -17,3 +19,5 @@ export default function weapx(_config = {}) {
 }
 
 export const createStore = StoreCore.createStore;
+export const runStore = autorun;
+export const watchStore = reaction;
