@@ -14,8 +14,8 @@
 |onHideAfter||
 |onUnloadBefore||
 |onUnloadAfter||
-|onPageWillUpdate|页面在重新渲染之前执行|
-|onPageDidUpdate|页面在重新渲染成功后之后执行|
+|[onPageWillUpdate](#onpagewillupdateobject-dataobject-nextdata)|页面在重新渲染之前执行|
+|[onPageDidUpdate](#onpagedidupdateobject-prevdata)|页面在重新渲染成功后之后执行|
 
 
 ### `onPageWillUpdate(Object data,Object nextData)`
