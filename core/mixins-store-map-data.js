@@ -17,7 +17,7 @@ export const mixStoreMapData = (minxinStoreMapData, nativeStoreMapData) => {
       nativeStoreMapData[key] = minxinStoreMapData[key];
     }
   });
-  return minxinStoreMapData;
+  return nativeStoreMapData;
 };
 
 export default function(pageConf) {
