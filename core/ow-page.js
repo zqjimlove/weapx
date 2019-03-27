@@ -1,4 +1,4 @@
-import { config } from "../weapx";
+import config from "../config";
 import pageMixins from "./page-mixins";
 import StoreCore from "./store.core";
 

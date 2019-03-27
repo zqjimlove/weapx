@@ -1,16 +1,9 @@
 import "./core/ow-page";
 import StoreCore from "./core/store.core";
-
-import queueUpdateMixin from "./core/mixins/queue-update-mixin";
-import storeMapDataMixin from "./core/mixins/store-map-data-mixin";
-
+import config from './config';
 import { autorun, reaction } from "./libs/mobx";
 
-const DEFAULT_CONFIG = {
-  mixins: [storeMapDataMixin, queueUpdateMixin]
-};
 
-export const config = {};
 
 export default function weapx(_config = {}) {
   const mixins = (DEFAULT_CONFIG.mixins || []).concat(_config.mixins || []);
